@@ -18,4 +18,12 @@ app.post("app/v1/Signup",async(req,res)=>{
     
 })
 
+app.post("app/v1/SignIn",async (req,res)=>{
+    const {username,password} = req.body;
+    const existinguser = await UserModel.findById(username);
+    if(existinguser){
+        
+    }
+})
+
 
