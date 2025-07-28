@@ -15,6 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const db_1 = require("./db");
 const app = (0, express_1.default)();
+app.use(express_1.default.json());
+const port = 3000;
 app.post("app/v1/Signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { username, password } = req.body;
@@ -34,3 +36,6 @@ app.post("app/v1/SignIn", (req, res) => __awaiter(void 0, void 0, void 0, functi
     if (existinguser) {
     }
 }));
+app.listen(port, () => {
+    console.log(`app is listeningbat port number ${port}`);
+});

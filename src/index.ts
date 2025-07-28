@@ -1,7 +1,13 @@
 import express from "express";
 import { UserModel } from "./db";
+import jwt from "jsonwebtoken"
+import dotenv from "dotenv";
+
 
 const app=express();
+app.use(express.json())
+const port=3000;
+dotenv.config();
 
 app.post("app/v1/Signup",async(req,res)=>{
    try {
@@ -20,10 +26,25 @@ app.post("app/v1/Signup",async(req,res)=>{
 
 app.post("app/v1/SignIn",async (req,res)=>{
     const {username,password} = req.body;
+    const JWT_KEY  =process.env.JWT_SECRECT_KEY;
+   
     const existinguser = await UserModel.findById(username);
     if(existinguser){
-        
+      if(!JWT_KEY){
+        return res.json({message:"no JWT_KEY PROVIDED"});
+      }
+      const token = jwt.sign({id:existinguser._id}, JWT_KEY , {expiresIn:"4h"});
+      res.json({
+        token
+      });
+    }else{
+      res.status(403).json({message:"incorect credentials"});
     }
+   
+})
+
+app.listen(port,()=>{
+    console.log(`app is listeningbat port number ${port}`)
 })
 
 

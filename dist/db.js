@@ -40,4 +40,4 @@ const UserSchema = new mongoose_1.Schema({
     username: { type: String, unique: true },
     password: { type: String }
 });
-exports.UserModel = (0, mongoose_1.model)("user", UserSchema);
+exports.UserModel = (0, mongoose_1.model)("User", UserSchema);
