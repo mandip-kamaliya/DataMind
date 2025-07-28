@@ -14,10 +14,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const db_1 = require("./db");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const dotenv_1 = __importDefault(require("dotenv"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 const port = 3000;
-app.post("app/v1/Signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+dotenv_1.default.config();
+app.post("/app/v1/Signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { username, password } = req.body;
         db_1.UserModel.create({
@@ -30,10 +33,39 @@ app.post("app/v1/Signup", (req, res) => __awaiter(void 0, void 0, void 0, functi
         res.status(411).json({ message: "user already exists" });
     }
 }));
-app.post("app/v1/SignIn", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.post("/app/v1/SignIn", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username, password } = req.body;
-    const existinguser = yield db_1.UserModel.findById(username);
+    const JWT_KEY = process.env.JWT_SECRECT_KEY;
+    const existinguser = yield db_1.UserModel.findOne({ username, password });
     if (existinguser) {
+        if (!JWT_KEY) {
+            return res.json({ message: "no JWT_KEY PROVIDED" });
+        }
+        const token = jsonwebtoken_1.default.sign({ id: existinguser._id }, JWT_KEY, { expiresIn: "4h" });
+        res.json({
+            token
+        });
+    }
+    else {
+        res.status(403).json({ message: "incorect credentials" });
+    }
+}));
+app.post("/app/v1/content", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { link, title, tag, userId } = req.body;
+    if (!link || !title || !tag || !userId) {
+        return res.status(400).json({ message: "Missing required fields: link, title, tag, or userId" });
+    }
+    try {
+        yield db_1.ContentModel.create({
+            tag: tag,
+            link: link,
+            title: title,
+            userId: userId
+        });
+        res.status(201).json({ message: "content added successfully" });
+    }
+    catch (e) {
+        res.status(500).json({ message: "error while adding content" });
     }
 }));
 app.listen(port, () => {
