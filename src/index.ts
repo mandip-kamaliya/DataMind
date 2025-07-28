@@ -2,6 +2,7 @@ import express from "express";
 import { ContentModel, UserModel } from "./db";
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv";
+import { usermiddleware } from "./Middleware";
 
 
 const app=express();
@@ -43,7 +44,7 @@ app.post("/app/v1/SignIn",async (req,res)=>{
    
 })
 
-app.post("/app/v1/content",async (req,res) => {
+app.post("/app/v1/content",usermiddleware,async (req,res) => {
   const {link,title,tag,userId} = req.body
  if (!link || !title || !tag || !userId) {
         return res.status(400).json({ message: "Missing required fields: link, title, tag, or userId" });

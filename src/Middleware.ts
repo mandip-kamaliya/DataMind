@@ -9,6 +9,7 @@ export const usermiddleware = async (req:Request,res:Response,next:NextFunction)
         if(decoded){
             //@ts-ignore
             req.userId=decoded.id
+            next();
         }else{
             res.status(403).json({
                 message:"you are not logged in"
