@@ -69,40 +69,17 @@ app.post("/app/v1/content", Middleware_1.usermiddleware, (req, res) => __awaiter
         res.status(500).json({ message: "error while adding content" });
     }
 }));
-// Add this route to your index.ts for debugging
-app.get("/app/v1/debug-jwt", (req, res) => {
-    console.log("--- Starting JWT Debug ---");
-    // Using the same JWT_KEY you import from your config file
-    const key = config_1.JWT_KEY;
-    console.log("Key loaded from config for this test:", key);
-    if (!key) {
-        console.error("DEBUG ERROR: The JWT_KEY is undefined!");
-        return res.status(500).json({
-            message: "DEBUG FAILED: The JWT_KEY is not loaded correctly. Check your .env file and the import order in index.ts."
-        });
-    }
+app.get("/app/v1/content", Middleware_1.usermiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // 1. Sign a simple test token
-        const payload = { userId: "test-user-123" };
-        const testToken = jsonwebtoken_1.default.sign(payload, key, { expiresIn: "1m" });
-        console.log("Successfully signed a test token.");
-        // 2. Immediately try to verify the token we just made
-        const decoded = jsonwebtoken_1.default.verify(testToken, key);
-        console.log("Successfully verified the test token. Decoded payload:", decoded);
-        res.status(200).json({
-            message: "✅ DEBUG SUCCESS: The key is working. The token was signed and verified successfully.",
-        });
+        //@ts-ignore
+        const userId = req.userId;
+        const content = yield db_1.ContentModel.find({ userId });
+        res.json(content);
     }
     catch (error) {
-        console.error("DEBUG FAILED:", error);
-        res.status(500).json({
-            message: "❌ DEBUG FAILED: The key seems to be loaded but the sign/verify process failed.",
-            errorName: error instanceof Error ? error.name : "UnknownError",
-            errorMessage: error instanceof Error ? error.message : String(error)
-        });
+        res.status(404).json({ error: error.message });
     }
-    console.log("--- Finished JWT Debug ---");
-});
+}));
 app.listen(port, () => {
     console.log(`app is listeningbat port number ${port}`);
 });
