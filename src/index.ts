@@ -45,16 +45,17 @@ app.post("/app/v1/SignIn",async (req,res)=>{
 })
 
 app.post("/app/v1/content",usermiddleware,async (req,res) => {
-  const {link,title,tag,userId} = req.body
- if (!link || !title || !tag || !userId) {
-        return res.status(400).json({ message: "Missing required fields: link, title, tag, or userId" });
+  const {link,title} = req.body
+ if (!link || !title ) {
+        return res.status(400).json({ message: "Missing required fields: link, title" });
     }
 try {
    await ContentModel.create({
-      tag:tag,
-      link:link,
-      title:title,
-      userId:userId
+      tag:[],
+      link,
+      title,
+      //@ts-ignore
+      userId:req.userId
     })
     res.status(201).json({message:"content added successfully"});
 } catch (e) {
